@@ -1,0 +1,23 @@
+[package]
+name = "rustos"
+version = "0.1.0"
+edition = "2021"
+
+[profile.release]
+lto = true
+debug = true
+
+[features]
+default = []
+
+[[bin]]
+name = "kernel"
+path = "src/main.rs"
+
+##--------------------------------------------------------------------------------------------------
+## Dependencies
+##--------------------------------------------------------------------------------------------------
+
+[target]
+
+[dependencies]
