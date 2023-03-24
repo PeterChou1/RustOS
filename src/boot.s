@@ -39,18 +39,45 @@ _start:
 	ADR_REL	x0, __bss_start
 	ADR_REL x1, __bss_end_exclusive
 
+
 .L_bss_init_loop:
 	cmp	x0, x1
-	b.eq	.L_prepare_rust
+	b.eq switch_exception_level_el2
 	stp	xzr, xzr, [x0], #16
 	b	.L_bss_init_loop
 
-	// Prepare the jump to Rust code.
+
+switch_exception_level_el2:
+    // Enable timer counter register for EL1
+    ldr     x0, ={}
+    msr     sctlr_el1, x0
+
+    ldr     x0, ={CNTH_CTL_EL2_VALUE}
+    msr     cnthctl_el2, x0
+
+    // No offset for reading the counters.
+    ldr     x0, #0
+    msr     cntvoff_el2, x0
+
+    // Set EL1 execution state to AArch64.
+    ldr     x0, ={HCR_VALUE}
+    msr     hcr_el2, x0
+
+    // Set up a simulated exception return.
+    ldr     x0, ={SPSR_EL2_VALUE}
+    msr     spsr_el2, x0
+
+    // Set the EL1 entry point
+    adr     x0, .L_prepare_rust
+    msr     elr_el2, x0
+
+    // Perform the exception return to EL1
+    eret
+
 .L_prepare_rust:
 	// Set the stack pointer.
 	ADR_REL	x0, __boot_core_stack_end_exclusive
 	mov	sp, x0
-
 	// Jump to Rust code.
 	b	_start_rust
 
