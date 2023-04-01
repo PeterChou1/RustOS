@@ -49,7 +49,7 @@ _start:
 
 switch_exception_level_el2:
     // Enable timer counter register for EL1
-    ldr     x0, ={}
+    ldr     x0, ={SCTLR_VALUE_MMU_DISABLED}
     msr     sctlr_el1, x0
 
     ldr     x0, ={CNTH_CTL_EL2_VALUE}

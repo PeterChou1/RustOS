@@ -131,3 +131,9 @@ el1_irq:
 
 .globl err_hang
 err_hang: b err_hang
+
+.globl delay
+delay:
+	subs x0, x0, #1
+	bne delay
+	ret

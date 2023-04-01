@@ -4,6 +4,7 @@ use crate::println;
 // Assembly counterpart to this file.
 global_asm!(
     include_str!("boot.s"),
+    SCTLR_VALUE_MMU_DISABLED = const ((3 << 28) | (3 << 22) | (1 << 20) | (1 << 11) | (0 << 25) | (0 << 24) | (0 << 12) | (0 << 2) | (0 << 0)),
     CNTH_CTL_EL2_VALUE = const ((1 << 1) | (1 << 0)),
     HCR_VALUE = const (1 << 31),
     SPSR_EL2_VALUE = const ((1 << 9) | (1 << 8) | (1 << 7) | (1 << 6) | (5 << 0))

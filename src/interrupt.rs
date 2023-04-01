@@ -1,4 +1,5 @@
-use crate::println;
+use crate::{print, println};
+use crate::process::schedule;
 use crate::registers;
 
 #[no_mangle]
@@ -27,10 +28,11 @@ pub unsafe fn enable_interrupt_controller() {
 
 unsafe fn handle_timer_irq() {
     let mut time = get32(registers::TIMER_CLO as *mut u32);
-    time = time + 20_0000;
+    time = time + 20_000;
     put32(registers::TIMER_C1 as *mut u32, time);
     put32(registers::TIMER_CS as *mut u32, registers::TIMER_CS_M1);
-    println!("handle timer interrupts");
+    println!("timer handler called");
+    schedule();
 }
 
 
