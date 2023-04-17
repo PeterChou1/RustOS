@@ -18,7 +18,7 @@ pub extern "C" fn get32(ptr: *const u32) -> u32 {
 
 pub unsafe fn timer_init () {
     let mut time = get32(registers::TIMER_CLO as *mut u32);
-    time = time + 20_0000;
+    time = time + 200_000;
     put32(registers::TIMER_C1 as *mut u32, time);
 }
 
@@ -28,7 +28,7 @@ pub unsafe fn enable_interrupt_controller() {
 
 unsafe fn handle_timer_irq() {
     let mut time = get32(registers::TIMER_CLO as *mut u32);
-    time = time + 20_0000;
+    time = time + 200_000;
     put32(registers::TIMER_C1 as *mut u32, time);
     put32(registers::TIMER_CS as *mut u32, registers::TIMER_CS_M1);
     crate::enable_irq();

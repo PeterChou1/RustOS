@@ -38,7 +38,7 @@ unsafe fn TaskOne() {
     println!("Task 1 Start\n");
     loop {
         println!("Task 1 run");
-        delay(200_000);
+        delay(200_000_000);
     }
 }
 
@@ -46,7 +46,7 @@ unsafe fn TaskTwo() {
     println!("Task 2 Start\n");
     loop {
         println!("Task 2 run");
-        delay(200_000);
+        delay(200_000_000);
     }
 }
 
