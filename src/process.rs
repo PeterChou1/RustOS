@@ -115,6 +115,11 @@ pub fn get_processes() -> &'static Processes {
     }
 }
 
+enum ProcessKind {
+    KThread,
+    UThread
+}
+
 pub fn copy_process(function_pointer : u64, arg: u64) -> i32 {
 
     let Task : *mut Task_Struct;
@@ -122,7 +127,6 @@ pub fn copy_process(function_pointer : u64, arg: u64) -> i32 {
     if Task.is_null() {
         return 1;
     }
-    println!("copy process\n");
     unsafe {
         get_processes().inner.lock(|inner| {
             let currentTask = inner.currentTask as *mut Task_Struct;
@@ -156,24 +160,17 @@ pub fn switch_to(next : u64) {
 pub fn schedule() {
     get_processes().inner.lock(|inner| {
          if inner.cPID == 0 {
+             println!("switching to process Task 1");
              switch_to(inner.Tasks[1]);
              inner.cPID = 1;
          } else if inner.cPID == 1 {
+             println!("switching to process Task 2");
              switch_to(inner.Tasks[2]);
              inner.cPID = 2;
          } else if inner.cPID == 2 {
+             println!("switching to process kernel thread");
              switch_to(inner.Tasks[0]);
              inner.cPID = 0;
          }
     })
-}
-
-#[no_mangle]
-fn schedule_tail() {
-
-}
-
-// in
-fn timer_tick() {
-
 }

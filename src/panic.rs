@@ -11,7 +11,6 @@ fn panic_prevent_reenter() {
 
     if !PANIC_IN_PROGRESS.load(Ordering::Relaxed) {
         PANIC_IN_PROGRESS.store(true, Ordering::Relaxed);
-
         return;
     }
 
