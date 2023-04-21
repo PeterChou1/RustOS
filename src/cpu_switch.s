@@ -23,5 +23,6 @@ cpu_switch_to:
 
 .globl ret_from_fork
 ret_from_fork:
-	mov	x0, x20     //	bl	schedule_tail
- 	blr	x19 		//should never return
+	cbz	x19, ret_to_user			// not a kernel thread if x19 is zero
+	mov	x0, x20
+	blr	x19

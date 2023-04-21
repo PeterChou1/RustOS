@@ -17,9 +17,11 @@ mod syscall;
 use core::arch::global_asm;
 use crate::interrupt::{enable_interrupt_controller, timer_init};
 use crate::process::{copy_process, init_processes, schedule};
+use crate::process::ProcessKind::KThread;
 
 global_asm!(include_str!("get_el.s"));
-global_asm!(include_str!("entry.s"));
+//global_asm!(include_str!("entry.s"));
+global_asm!(include_str!("entryv1.s"));
 global_asm!(include_str!("irq.s"));
 global_asm!(include_str!("syscall.s"));
 
@@ -33,22 +35,14 @@ extern "C" {
 }
 
 
-
-unsafe fn TaskOne() {
-    println!("Task 1 Start\n");
+unsafe fn KernelThread() {
+    println!("Kernel Thread Started Exception Level: {}\n", get_el());
     loop {
         println!("Task 1 run");
-        delay(200_000_000);
+        delay(200_000);
     }
 }
 
-unsafe fn TaskTwo() {
-    println!("Task 2 Start\n");
-    loop {
-        println!("Task 2 run");
-        delay(200_000_000);
-    }
-}
 
 #[no_mangle]
 unsafe fn kernel_init() -> ! {
@@ -78,18 +72,13 @@ unsafe fn kernel_init() -> ! {
     println!("        \\::|   |                 \\::::/    /              \\::::/    /                                            \\::/____/               \\::::/    /");
     println!("         \\:|   |                  \\::/____/                \\::/    /                                              ~~                      \\::/    /");
     println!("          \\|___|                   ~~                       \\/____/                                                                        \\/____/");
-
-    let res1 = copy_process(TaskOne as u64, 0);
+    let res1 = copy_process(KThread, KernelThread as u64, 0);
     if res1 != 0 {
-        panic!("Task 1 fail to initiate");
-    }
-    let res2 = copy_process(TaskTwo as u64, 0);
-    if res2 != 0 {
-        panic!("Task 2 fail to initiate");
+        panic!("Kernel Thread fail to initiate");
     }
 
     loop {
-        //println!("in kernel loop\n");
+        //fprintln!("in kernel loop\n");
         schedule();
     }
 }
