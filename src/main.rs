@@ -16,7 +16,7 @@ mod syscall;
 
 use core::arch::global_asm;
 use crate::interrupt::{enable_interrupt_controller, timer_init};
-use crate::process::{copy_process, init_processes, schedule};
+use crate::process::{copy_process, move_to_usermode, init_processes, schedule};
 use crate::process::ProcessKind::KThread;
 
 global_asm!(include_str!("get_el.s"));
@@ -25,21 +25,25 @@ global_asm!(include_str!("entryv1.s"));
 global_asm!(include_str!("irq.s"));
 global_asm!(include_str!("syscall.s"));
 
-
 extern "C" {
     pub fn get_el() -> u64;
     pub fn irq_vector_init();
     pub fn enable_irq();
     pub fn disable_irq();
     pub fn delay(time : u64);
+    pub fn call_sys_write();
 }
 
+unsafe fn user_process() {
+    println!("In user process Exception level: {}", get_el());
+    call_sys_write();
+}
 
 unsafe fn KernelThread() {
     println!("Kernel Thread Started Exception Level: {}\n", get_el());
-    loop {
-        println!("Task 1 run");
-        delay(200_000);
+    let err = move_to_usermode(user_process as u64);
+    if err < 0 {
+        println!("error moving to user mode")
     }
 }
 
@@ -78,7 +82,6 @@ unsafe fn kernel_init() -> ! {
     }
 
     loop {
-        //fprintln!("in kernel loop\n");
         schedule();
     }
 }

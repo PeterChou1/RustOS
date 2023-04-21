@@ -23,6 +23,7 @@ cpu_switch_to:
 
 .globl ret_from_fork
 ret_from_fork:
-	cbz	x19, ret_to_user			// not a kernel thread if x19 is zero
 	mov	x0, x20
 	blr	x19
+
+

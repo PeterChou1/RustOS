@@ -11,6 +11,7 @@ global_asm!(include_str!("mm.s"));
 extern "C" {
     fn ret_from_fork() -> !;
     fn cpu_switch_to(a: u64, b: u64);
+    fn ret_to_user() -> !;
     fn memzero(ptrarea : u64, size : u64);
 }
 
@@ -47,12 +48,23 @@ pub struct Task_Struct {
     flags : ProcessKind
 }
 
-
+#[repr(C)]
 pub struct Pt_Regs {
-    regs : [u64; 31],
+    //
+    x19 : u64,
+    x20 : u64,
+    x21 : u64,
+    x22 : u64,
+    x23 : u64,
+    x24 : u64,
+    x25 : u64,
+    x26 : u64,
+    x27 : u64,
+    x28 : u64,
+    fp : u64,
     sp : u64,
     pc : u64,
-    pstate : u64
+    pstate : u64,
 }
 
 struct ProcessesInner {
@@ -163,23 +175,24 @@ pub fn copy_process(process_kind : ProcessKind, function_pointer : u64, arg: u64
     return 0;
 }
 
-pub fn move_to_usermode(program_counter: u64) {
+pub fn move_to_usermode(program_counter: u64) -> i32 {
+    let mut err : i32 = 0;
     get_processes().inner.lock(|inner| unsafe {
         let current = inner.currentTask as *mut Task_Struct;
         let regs = task_pt_regs(current);
         // zero out regs and current
         memzero(regs as u64, size_of::<Pt_Regs>() as u64);
-        let context = &(*current).context as *const _;
-        memzero(context as u64, size_of::<CPU_Context>() as u64);
-        (*regs).pc = program_counter;
+        // memzero(current as u64, size_of::<Task_Struct>() as u64);
+        //(*regs).x22 = program_counter;
+        //(*regs).x23 = 0;
         (*regs).pstate = 0;
+        (*regs).pc = program_counter;
         let stack_ptr = get_free_page() + PAGE_SIZE;
         if stack_ptr == 0 {
-            return;
+            err = -1;
         }
-        (*regs).sp = stack_ptr;
-        (*current).stack = stack_ptr;
-    })
+    });
+    return err;
 }
 
 pub fn task_pt_regs(tsk : *mut Task_Struct) -> *mut Pt_Regs {
@@ -206,14 +219,5 @@ pub fn schedule() {
             switch_to(inner.Tasks[i]);
             inner.cPID = i;
         }
-        // if inner.cPID == 0 {
-        //     println!("switching to process Task 1");
-        //     switch_to(inner.Tasks[1]);
-        //     inner.cPID = 1;
-        // } else if inner.cPID == 1 {
-        //     println!("switching to process Task 0");
-        //     switch_to(inner.Tasks[0]);
-        //     inner.cPID = 0;
-        // }
     })
 }

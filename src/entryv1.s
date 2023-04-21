@@ -1,3 +1,4 @@
+
     .macro handle_invalid_entry el, type
     kernel_entry \el
     mov	x0, #\type
