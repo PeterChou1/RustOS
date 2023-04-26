@@ -20,7 +20,6 @@ use crate::process::{copy_process, move_to_usermode, init_processes, schedule};
 use crate::process::ProcessKind::KThread;
 
 global_asm!(include_str!("get_el.s"));
-//global_asm!(include_str!("entry.s"));
 global_asm!(include_str!("entryv1.s"));
 global_asm!(include_str!("irq.s"));
 global_asm!(include_str!("syscall.s"));
@@ -36,7 +35,6 @@ extern "C" {
 
 unsafe fn user_process() {
     println!("In user process Exception level: {}", get_el());
-    call_sys_write();
 }
 
 unsafe fn KernelThread() {
