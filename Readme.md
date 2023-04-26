@@ -4,6 +4,7 @@ Rust OS is a custom OS written in Rust for the Raspberry PI 3b+ bcm2837 board.
 # Building
 To build the kernel you need to first run the following commands
 to install the dependencies <br/>
+`docker pull rustembedded/osdev-utils:2021.12`
 `cargo install cargo-binutils` <br/>
 `rustup component add llvm-tools-preview` <br/>
 `rustup target add aarch64-unknown-none-softfloat`
